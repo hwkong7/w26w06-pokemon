@@ -8,6 +8,7 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+
 export default function List() {
   return <h2>포켓몬 목록</h2>;
 }
