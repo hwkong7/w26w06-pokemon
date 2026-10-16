@@ -64,7 +64,7 @@ header p{margin:.3rem 0 0;color:var(--muted);font-size:.9rem}
 code{font-family:var(--mono);font-size:.86em;background:var(--code);padding:1px 5px;border-radius:4px}
 .quiz{min-width:0;display:flex;flex-direction:column;gap:10px}
 .quiz .ask{font-size:.85rem;color:var(--muted)}
-.quiz pre{margin:0;padding:12px 14px;background:var(--code);border-radius:8px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.8}
+.quiz pre{margin:0;padding:12px 14px;background:var(--code);border-radius:8px;white-space:pre-wrap;word-break:break-word;font-family:var(--mono);font-size:12.5px;line-height:1.8}
 .quiz input{font:600 13px var(--mono);color:var(--pen);background:transparent;border:none;border-bottom:2px solid var(--pen);padding:0 4px;text-align:center;min-width:3ch}
 .quiz input:focus{outline:none;background:var(--pen-soft)}
 .quiz input.ok{color:var(--ok);border-color:var(--ok);background:var(--ok-soft)}
@@ -177,7 +177,7 @@ const CARDS = [
  {tag:"비동기", t:"왜 비동기일까",
   c:`<p>자바스크립트는 일하는 손이 <b>하나</b>다. 응답을 멈춰서 기다리면 클릭도 화면도 같이 멈춘다.</p><p>그래서 요청은 브라우저에 맡겨두고 바로 다음 줄로 간다. 응답은 대기열에 줄을 서서 <b>하던 일이 다 끝난 뒤</b> 처리된다.</p>
   <div class="flow"><span class="chip c1">log A</span><span class="arw">→</span><span class="chip c2">get 맡김</span><span class="arw">→</span><span class="chip c1">log C</span><span class="arw">→</span><span class="chip c3">대기열의 B</span></div>`,
-  ask:"출력 순서를 써보자 (예: ABC)", code:`console.log("A")
+  ask:"실제로 찍히는 순서대로 알파벳 세 개를 써보자", code:`console.log("A")
 axios.get(url).then(() => console.log("B"))
 console.log("C")
 // 출력: ⟦⟧`, a:["ACB","A→C→B","A->C->B","A,C,B"], w:"then 콜백은 응답이 온 뒤, 그것도 지금 실행 중인 코드(A, C)가 다 끝난 뒤에야 실행된다."},
