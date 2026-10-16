@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="icon" href="/pikachu.png" type="image/png">
+<link rel="icon" href="pikachu.png" type="image/png">
 <title>포켓몬 도감 단어장</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
@@ -120,9 +120,24 @@ button:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
   .card{grid-template-columns:1fr;padding:30px 16px 18px;transform-origin:50% 0}
   .hole{left:50%;top:12px;margin-left:-8px;margin-top:0}
   .concept{border-right:none;border-bottom:1.5px dashed var(--line);padding:0 0 14px}
-  .controls{padding-left:0}
+  .wrap{padding-block:14px 0;gap:12px}
+  header h1{font-size:1.75rem}
+  header p{font-size:.8rem}
+  .score{font-size:.75rem}
+  .score span{padding:2px 8px}
+  .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+  .chips::-webkit-scrollbar{display:none}
+  .chips button{flex:0 0 auto;padding:6px 12px}
+  .card{min-height:0;gap:14px}
+  .concept h2{font-size:1.5rem}
+  .concept{font-size:.95rem}
+  .quiz pre{white-space:pre-wrap;word-break:break-word;font-size:12px;padding:10px 12px}
+  .quiz input{font-size:16px;padding:2px 6px;min-height:30px}
+  .fb{font-size:.88rem;scroll-margin-bottom:96px}
+  .controls{margin-left:calc(-1 * max(16px, env(safe-area-inset-left, 0px)));margin-right:calc(-1 * max(16px, env(safe-area-inset-right, 0px)));padding-left:max(16px, env(safe-area-inset-left, 0px))!important;padding-right:max(16px, env(safe-area-inset-right, 0px))}
+  .controls{position:sticky;bottom:0;z-index:8;background:var(--desk);padding-left:0;padding-block:10px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
   .controls .hint{display:none}
-  .controls button{white-space:nowrap}
+  .controls button{flex:1;min-height:48px;white-space:nowrap;font-size:1rem}
   @keyframes flipOut{to{transform:rotateX(175deg);opacity:.2}}
   @keyframes flipIn{from{transform:rotateX(175deg);opacity:.2}}
   .stack::before{transform:translate(0,6px)} .stack::after{transform:translate(0,12px)}
@@ -339,6 +354,7 @@ console.log(response.⟦⟧)`, a:["data"], w:"axios 응답 객체의 본문은 �
 ];
 
 const $=id=>document.getElementById(id);
+const TOUCH=matchMedia("(pointer:coarse)").matches;
 const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 const norm=s=>s.toLowerCase().replace(/[\s"'`]/g,"");
 const res=new Array(CARDS.length).fill(null); // true/false/null
@@ -373,12 +389,12 @@ function render(anim){
    <div class="meta"><span class="tag">${c.tag}</span><span class="no">${String(pos+1).padStart(2,"0")} / ${order.length}</span></div>
    <div class="concept"><h2>${c.t}</h2>${c.c}</div>
    <div class="quiz"><div class="ask">Q. ${c.ask}</div>
-    <pre>${esc(pre)}<input id="ans" size="${w}" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="빈칸 답">${esc(post)}</pre>
+    <pre>${esc(pre)}<input id="ans" size="${w}" enterkeyhint="done" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="빈칸 답">${esc(post)}</pre>
     <div class="fb" id="fb" hidden></div></div>`;
   $("stack").classList.toggle("empty",pos>=order.length-1);
   const inp=$("ans");
   if(res[k]!==null) showResult(k,res[k],"");
-  else setTimeout(()=>inp.focus({preventScroll:true}),anim==="in"?450:60);
+  else if(!TOUCH) setTimeout(()=>inp.focus({preventScroll:true}),anim==="in"?450:60);
   inp.addEventListener("keydown",e=>{if(e.key!=="Enter")return;e.preventDefault();e.stopPropagation();
     if(inp.readOnly) next(); else check(k)});
   if(anim){void card.offsetWidth;card.classList.add(anim)}
@@ -393,15 +409,16 @@ function showResult(k,ok,v){
   const c=CARDS[k],inp=$("ans");inp.readOnly=true;if(v)inp.value=v;else if(ok)inp.value=c.a[0];
   inp.classList.add(ok?"ok":"bad");
   const fb=$("fb");fb.hidden=false;fb.className="fb "+(ok?"ok":"bad");
-  fb.innerHTML=`<span class="v">${ok?"정답!":"아쉽다"}</span>${ok?"":`정답 <span class="ans">${esc(c.a[0])}</span> · `}${c.w}<div class="hint" style="margin-top:4px"><kbd>Enter</kbd> 또는 카드를 눌러 넘기기</div>`;
+  fb.innerHTML=`<span class="v">${ok?"정답!":"아쉽다"}</span>${ok?"":`정답 <span class="ans">${esc(c.a[0])}</span> · `}${c.w}<div class="hint" style="margin-top:4px">${TOUCH?"카드를 누르거나 옆으로 밀어서 넘기기":"<kbd>Enter</kbd> 또는 카드를 눌러 넘기기"}</div>`;
   $("next").textContent="넘기기 →";
-  setTimeout(()=>inp.focus({preventScroll:true}),0);
+  if(TOUCH){inp.blur();setTimeout(()=>fb.scrollIntoView({block:"nearest",behavior:"smooth"}),80)}
+  else setTimeout(()=>inp.focus({preventScroll:true}),0);
 }
 function next(){
   if(busy||pos>=order.length)return;
   const k=order[pos]; if(res[k]===null){res[k]=false;score()}
   busy=true;const card=$("card");card.classList.remove("in","rise");void card.offsetWidth;card.classList.add("out");
-  setTimeout(()=>{pos++;busy=false;render("rise")},430);
+  setTimeout(()=>{pos++;busy=false;render("rise");if(TOUCH)$("stack").scrollIntoView({block:"start",behavior:"smooth"})},430);
 }
 function prev(){ if(busy||pos===0)return; pos--; render("in"); }
 function renderEnd(){
