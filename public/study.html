@@ -358,6 +358,7 @@ const TOUCH=matchMedia("(pointer:coarse)").matches;
 const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 const norm=s=>s.toLowerCase().replace(/[\s"'`]/g,"");
 const res=new Array(CARDS.length).fill(null); // true/false/null
+const typed=new Array(CARDS.length).fill(""); // 내가 쓴 답
 let order=CARDS.map((_,i)=>i), pos=0, busy=false;
 
 // 링
@@ -393,7 +394,7 @@ function render(anim){
     <div class="fb" id="fb" hidden></div></div>`;
   $("stack").classList.toggle("empty",pos>=order.length-1);
   const inp=$("ans");
-  if(res[k]!==null) showResult(k,res[k],"");
+  if(res[k]!==null) showResult(k,res[k],typed[k]);
   else if(!TOUCH) setTimeout(()=>inp.focus({preventScroll:true}),anim==="in"?450:60);
   inp.addEventListener("keydown",e=>{if(e.key!=="Enter")return;e.preventDefault();e.stopPropagation();
     if(inp.readOnly) next(); else check(k)});
@@ -402,7 +403,7 @@ function render(anim){
   pile();
 }
 function check(k){
-  const v=$("ans").value; if(!v.trim()){showResult(k,false,"(빈칸)");res[k]=false;score();return}
+  const v=$("ans").value; typed[k]=v.trim(); if(!v.trim()){showResult(k,false,"(빈칸)");res[k]=false;score();return}
   const ok=CARDS[k].a.some(a=>norm(a)===norm(v)); res[k]=ok; score(); showResult(k,ok,v);
 }
 function showResult(k,ok,v){
